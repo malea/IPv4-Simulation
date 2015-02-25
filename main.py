@@ -79,12 +79,18 @@ def create_routing_trie(table):
         trie.put(binary_prefix, value)
     return trie
 
+def create_arp_table(table):
+    arp_table = {}
+    for address, mac in table:
+        arp_table[address] = mac
+    return arp_table
+
 def main(argv):
     routes = argv[1] if len(argv) > 1 else 'routes.txt'
     arp    = argv[2] if len(argv) > 2 else 'arp.txt'
     nat    = argv[3] if len(argv) > 3 else 'nat.txt'
 
     routing_table = create_routing_trie(read_table(routes))
-
+    arp_table = create_arp_table(read_table(arp))
 if __name__ == '__main__':
     main(sys.argv)

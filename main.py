@@ -79,6 +79,21 @@ def create_routing_trie(table):
         trie.put(binary_prefix, value)
     return trie
 
+def simulate(routes, arp, nat):
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            break
+        (interface, source, destination, protocol, ttl, source_port,
+                destination_port) = tuple(line.strip().split())
+
+        route = routes.get(ip_to_binary_string(destination))
+        if not route:
+            print 'Unreachable' # TODO: format
+        next_hop = route.destination
+        next_interface = route.interface
+
 def main(argv):
     routes = argv[1] if len(argv) > 1 else 'routes.txt'
     arp    = argv[2] if len(argv) > 2 else 'arp.txt'
@@ -87,6 +102,8 @@ def main(argv):
     routing_table = create_routing_trie(read_table(routes))
     arp_table = dict(read_table(arp))
     nat_table = dict(read_table(nat))
+
+    simulate(routing_table, arp_table, nat_table)
 
 if __name__ == '__main__':
     main(sys.argv)

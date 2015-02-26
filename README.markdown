@@ -1,22 +1,18 @@
 # IPv4 Router Simulation
 
-## Instructions for Use
+**Requires Python 3.**
 
-To run:
+    python3 --version
 
-    python3 main.py routes.txt arp.txt nat.txt < pdu.txt
+To run part 1:
 
-###  `routes.txt`
+    python3 main.py < pdu.txt
 
-Each line of this file represents a routing table entry. The table will have three whitespace 
-deliminated columns.
+(Files `routes.txt`, `arp.txt`, and `nat.txt` should be in current working
+directory.)
 
-1. IPv4 prefix in format `a.b.c.d/x`. [CIDR notation](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
-2. IPv4 gateway address in `a.b.c.d` notation.
-3. Interface identifier: eth0, eth1, ppp0
+To run part 2, you must use the environment variable `NP_PRJ1_PART_2`.
 
-Note: If the gateway address is 0.0.0.0 and the prefix length is 32, this indicates a direct, point-to-point connection.
+For example:
 
-### `arp.txt`
-
-This file is used to create a dictionary that will simulate the "neighbor shouting" of ARP.
+    NP_PRJ1_PART_2=1 ruby nat_test.rb "python3 main.py"

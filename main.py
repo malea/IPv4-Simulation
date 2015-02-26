@@ -85,14 +85,45 @@ def simulate(routes, arp, nat):
             line = input()
         except EOFError:
             break
-        (interface, source, destination, protocol, ttl, source_port,
+        (interface, source, destination, protocol, ttl_str, source_port,
                 destination_port) = tuple(line.strip().split())
+
+        ttl = int(ttl_str) - 1
+        if ttl <= 0:
+            print('{}:{}->{}:{} discarded (TTL expired)'.format(
+                source, source_port,
+                destination, destination_port,
+            ))
+            continue
 
         route = routes.get(ip_to_binary_string(destination))
         if not route:
-            print 'Unreachable' # TODO: format
+            # should never happen with a default route
+            print('Unreachable') # TODO: format
         next_hop = route.destination
         next_interface = route.interface
+
+        if next_hop == '0.0.0.0':
+            connection = 'directly connected '
+            # if direct connection, ARP for the destination
+            next_hop = destination
+        else:
+            connection = 'via ' + next_hop
+
+        if next_interface.startswith('ppp'):
+            dashmac = ''
+        else:
+            # only arp for non-ppp interface
+            dashmac = '-' + arp[next_hop]
+
+        print('{}:{}->{}:{} {}({}{}) ttl {}'.format(
+            source, source_port,
+            destination, destination_port,
+            connection,
+            next_interface,
+            dashmac,
+            ttl,
+        ))
 
 def main(argv):
     routes = argv[1] if len(argv) > 1 else 'routes.txt'

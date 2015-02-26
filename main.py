@@ -133,7 +133,7 @@ def simulate(routes, arp, nat, part_two=False):
                     next_port = '20000'
                     key = (destination, next_port)
                 while key in translations:
-                    next_port = int(next_port) + 1
+                    next_port = str(int(next_port) + 1)
                     key = (destination, next_port)
                 translations[key] = (source, source_port)
                 # perform NAT translation on outgoing packet

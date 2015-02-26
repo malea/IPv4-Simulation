@@ -1,3 +1,4 @@
+import os
 import sys
 import collections
 
@@ -79,8 +80,10 @@ def create_routing_trie(table):
         trie.put(binary_prefix, value)
     return trie
 
-def simulate(routes, arp, nat):
+def simulate(routes, arp, nat, part_two=False):
+    translations = {}
     while True:
+
         try:
             line = input()
         except EOFError:
@@ -95,6 +98,12 @@ def simulate(routes, arp, nat):
                 destination, destination_port,
             ))
             continue
+
+        if part_two:
+            key = (source, destination_port)
+            if key in translations:
+                # undo NAT translation on incoming packet
+                destination, destination_port = translations[key]
 
         route = routes.get(ip_to_binary_string(destination))
         if not route:
@@ -116,6 +125,21 @@ def simulate(routes, arp, nat):
             # only arp for non-ppp interface
             dashmac = '-' + arp[next_hop]
 
+        if part_two:
+            if next_interface in nat:
+                next_port = source_port
+                key = (destination, next_port)
+                if key in translations:
+                    next_port = '20000'
+                    key = (destination, next_port)
+                while key in translations:
+                    next_port = int(next_port) + 1
+                    key = (destination, next_port)
+                translations[key] = (source, source_port)
+                # perform NAT translation on outgoing packet
+                source = nat[next_interface]
+                source_port = next_port
+
         print('{}:{}->{}:{} {}({}{}) ttl {}'.format(
             source, source_port,
             destination, destination_port,
@@ -126,15 +150,16 @@ def simulate(routes, arp, nat):
         ))
 
 def main(argv):
-    routes = argv[1] if len(argv) > 1 else 'routes.txt'
-    arp    = argv[2] if len(argv) > 2 else 'arp.txt'
-    nat    = argv[3] if len(argv) > 3 else 'nat.txt'
+    routes   = argv[1] if len(argv) > 1 else 'routes.txt'
+    arp      = argv[2] if len(argv) > 2 else 'arp.txt'
+    nat      = argv[3] if len(argv) > 3 else 'nat.txt'
+    part_two = os.getenv('NP_PRJ1_PART_2') # could be a flag, I guess
 
     routing_table = create_routing_trie(read_table(routes))
     arp_table = dict(read_table(arp))
     nat_table = dict(read_table(nat))
 
-    simulate(routing_table, arp_table, nat_table)
+    simulate(routing_table, arp_table, nat_table, part_two)
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -99,7 +99,7 @@ def simulate(routes, arp, nat, part_two=False):
             ))
             continue
 
-        if part_two:
+        if part_two and destination in nat.values():
             key = (source, destination_port)
             if key in translations:
                 # undo NAT translation on incoming packet

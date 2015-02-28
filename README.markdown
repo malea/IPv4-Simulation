@@ -6,7 +6,7 @@
 
 To run part 1:
 
-    python3 main.py < pdu.txt
+    python3 main.py < pdus.txt
 
 (Files `routes.txt`, `arp.txt`, and `nat.txt` should be in current working
 directory.)
